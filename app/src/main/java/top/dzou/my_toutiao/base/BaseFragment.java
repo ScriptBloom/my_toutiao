@@ -1,0 +1,74 @@
+package top.dzou.my_toutiao.base;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import butterknife.ButterKnife;
+
+public abstract class BaseFragment<T extends BasePresenter> extends Fragment {
+    private Activity mActivity;
+    private View rootView;
+    private T mPresenter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPresenter = createPresenter();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (rootView == null) {
+            rootView = inflater.inflate(getContentLayoutId(),container,false);
+            ButterKnife.bind(this, rootView);
+
+            initData();
+            initView(rootView);
+            initListener();
+        } else {
+            ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (parent != null) {
+                parent.removeView(rootView);
+            }
+        }
+        return rootView;
+    }
+
+    protected void initListener(){
+
+    }
+
+    protected void initData(){
+
+    }
+
+    protected void initView(View rootView){
+
+    }
+
+    protected abstract int getContentLayoutId();
+
+    protected abstract T createPresenter();
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mPresenter != null) {
+            mPresenter = null;
+        }
+        rootView = null;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.mActivity = (Activity) context;
+    }
+}

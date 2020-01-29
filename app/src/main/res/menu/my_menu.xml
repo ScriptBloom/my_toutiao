@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/home_selector"
+        android:title="@string/home" />
+    <item
+        android:id="@+id/videoFragment"
+        android:icon="@drawable/video_selector"
+        android:title="@string/video" />
+    <item
+        android:id="@+id/microToutiaoFragment"
+        android:icon="@drawable/micro_toutiao_selector"
+        android:title="@string/micro_toutiao" />
+    <item
+        android:id="@+id/mineFragment"
+        android:icon="@drawable/mine_selector"
+        android:title="@string/mine" />
+</menu>

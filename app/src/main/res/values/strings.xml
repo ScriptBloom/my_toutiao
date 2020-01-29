@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">今日头条-demo</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="home">首页</string>
+    <string name="video">视频</string>
+    <string name="micro_toutiao">趣头条</string>
+    <string name="mine">我的</string>
+    <string name="search_you_want_to_search">搜你想搜的</string>
+    <string name="my_channel">我的频道</string>
+    <string name="msg_dyn">动态</string>
+    <string name="fans">粉丝</string>
+    <string name="defalut_value">0</string>
+    <string name="day_7_visited">7天访客</string>
+    <string name="my_collect">收藏</string>
+    <string name="my_histroy">历史记录</string>
+    <string name="dark_mode">夜间模式</string>
+    <string name="defalut_name">Grow</string>
+    <string name="msg_notice">消息通知</string>
+    <string name="tt_mail">头条商城</string>
+    <string name="jd_mail">京东商城</string>
+    <string name="my_baoliao">我要爆料</string>
+    <string name="user_feedback">用户反馈</string>
+    <string name="system_setting">系统设置</string>
+    <string name="tt_mail_msg">邀请好友得200元现金奖励</string>
+    <string name="tab_micro">微头条</string>
+    <string name="text">文字</string>
+    <string name="pic">图片</string>
+</resources>
