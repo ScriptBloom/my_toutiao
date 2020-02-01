@@ -2,9 +2,16 @@ package top.dzou.my_toutiao.ui.fragment;
 
 
 import android.content.Intent;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -13,6 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +35,8 @@ import cn.jzvd.JzvdMgr;
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.api.Constant;
 import top.dzou.my_toutiao.base.BaseFragment;
+import top.dzou.my_toutiao.event.TabRefreshCompletedEvent;
+import top.dzou.my_toutiao.event.TabRefreshEvent;
 import top.dzou.my_toutiao.model.News;
 import top.dzou.my_toutiao.model.NewsRecord;
 import top.dzou.my_toutiao.model.VideoInfo;
@@ -33,6 +46,7 @@ import top.dzou.my_toutiao.ui.activity.VideoDetailActivity;
 import top.dzou.my_toutiao.ui.adapter.NewsListAdapter;
 import top.dzou.my_toutiao.ui.adapter.VideoRvAdapter;
 import top.dzou.my_toutiao.ui.widget.MyJzvdStd;
+import top.dzou.my_toutiao.utils.NetUtils;
 import top.dzou.my_toutiao.utils.NewsRecordHelper;
 import top.dzou.my_toutiao.utils.UIUtils;
 import top.dzou.ui_kit.swipe_rv.OnRefresh;
@@ -53,6 +67,9 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     private BaseQuickAdapter mAdapter;
     private Gson mGson = new GsonBuilder().create();
     private NewsRecord mNewsRecord;
+    private boolean isClickTabRefreshing;
+    private boolean isHomeTabRefresh;
+    private MenuItem mAnimMenuItem;
 
 
     public NewsListFragment() {
@@ -167,6 +184,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     protected void loadData() {
         //查找该频道的最后一组记录
         mNewsRecord = NewsRecordHelper.getLastNewsRecord(mChannelCode);
+        Log.d(TAG,"loadData newslist");
         if (mNewsRecord == null) {
             //找不到记录，拉取网络数据
             mNewsRecord = new NewsRecord();//创建一个没有数据的对象
@@ -181,6 +199,9 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
     @Override
     public void onSuccess(List<News> newList, String tipInfo) {
+        if (isHomeTabRefresh) {
+            postRefreshCompletedEvent();//发送加载完成的事件
+        }
         if(mNewsList==null||mNewsList.isEmpty()){
             //todo
         }
@@ -228,4 +249,82 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
             }
         }
     }
+
+    /**
+     * 接收到点击底部首页页签下拉刷新的事件
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onRefreshEvent(TabRefreshEvent event) {
+        if (event.getChannelCode().equals(mChannelCode)) {
+            //如果和当前的频道码一致并且不是刷新中,进行下拉刷新
+            if (!NetUtils.isNetworkAvailable(mActivity)) {
+                //网络不可用弹出提示
+                mTip.show();
+                return;
+            }
+            isClickTabRefreshing = true;
+            if (event.getPosition()==0) {
+                //如果页签是首页，则换成就加载的图标并执行动画
+//                MenuItem menuItem = event.getMenuItem();
+//                menuItem.setIcon(R.mipmap.tab_loading);
+//                menuItem.setChecked(true);
+                //设置动画
+//                ImageView qrView = (ImageView) getLayoutInflater().inflate(R.layout.action_view, null);
+//                qrView.setImageResource(R.mipmap.tab_loading);
+//                menuItem.setActionView(qrView);
+//                showAnimate(menuItem);
+            }
+
+            mRv.scrollToPosition(0);//滚动到顶部
+            mRefreshListener.onRefresh();
+            isHomeTabRefresh = event.getPosition()==0;
+        }
+    }
+
+    //无法使用BottomNavigationView设置动画 todo
+    private void showAnimate(MenuItem item) {
+        hideAnimate();
+        mAnimMenuItem = item;
+        //这里使用一个ImageView设置成MenuItem的ActionView，这样我们就可以使用这个ImageView显示旋转动画了
+        ImageView qrView = (ImageView) getLayoutInflater().inflate(R.layout.action_view, null);
+//        qrView.setImageResource(R.mipmap.tab_loading);
+        mAnimMenuItem.setActionView(qrView);
+        //显示动画
+        Animation animation = AnimationUtils.loadAnimation(mActivity, R.anim.anim_rotate_imgview);
+        LinearInterpolator interpolator = new LinearInterpolator();  //设置匀速旋转，在xml文件中设置会出现卡顿
+        animation.setInterpolator(interpolator);
+        animation.setRepeatCount(-1);
+        qrView.startAnimation(animation);
+
+    }
+    private void hideAnimate() {
+        if(mAnimMenuItem != null){
+            View view = mAnimMenuItem.getActionView();
+            if(view != null){
+                view.clearAnimation();
+                mAnimMenuItem.setActionView(null);
+            }
+        }
+    }
+
+    private void postRefreshCompletedEvent() {
+        if (isClickTabRefreshing) {
+            //如果是点击底部刷新获取到数据的,发送加载完成的事件
+            EventBus.getDefault().post(new TabRefreshCompletedEvent());
+            isClickTabRefreshing = false;
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        registerEventBus(NewsListFragment.this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        unregisterEventBus(NewsListFragment.this);
+    }
+
 }

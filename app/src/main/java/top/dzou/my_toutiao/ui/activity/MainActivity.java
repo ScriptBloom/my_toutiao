@@ -4,6 +4,8 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +17,10 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +31,8 @@ import cn.jzvd.Jzvd;
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.base.BaseActivity;
 import top.dzou.my_toutiao.base.BaseFragment;
+import top.dzou.my_toutiao.event.TabRefreshCompletedEvent;
+import top.dzou.my_toutiao.event.TabRefreshEvent;
 import top.dzou.my_toutiao.ui.adapter.MainTabAdapter;
 import top.dzou.my_toutiao.ui.fragment.HomeFragment;
 import top.dzou.my_toutiao.ui.fragment.MicroToutiaoFragment;
@@ -34,8 +42,10 @@ import top.dzou.my_toutiao.utils.UIUtils;
 
 public class MainActivity extends BaseActivity {
 
-    @BindView(R.id.bnv) BottomNavigationView mBnv;
-    @BindView(R.id.viewpager) ViewPager mMainTab;
+    @BindView(R.id.bnv)
+    BottomNavigationView mBnv;
+    @BindView(R.id.viewpager)
+    ViewPager mMainTab;
 
     private MainTabAdapter mMinTabAdapter;
     private List<BaseFragment> mFragments = new ArrayList<>();
@@ -45,6 +55,14 @@ public class MainActivity extends BaseActivity {
             put(R.id.homeFragment, R.color.color_D33D3C);
             put(R.id.videoFragment, R.color.color_BDBDBD);
             put(R.id.microToutiaoFragment, R.color.color_BDBDBD);
+        }
+    };
+    private Map<Integer, Integer> mPos = new HashMap<Integer, Integer>() {
+        {
+            put(0, R.id.homeFragment);
+            put(1, R.id.videoFragment);
+            put(2, R.id.microToutiaoFragment);
+            put(3, R.id.mineFragment);
         }
     };
 
@@ -72,7 +90,7 @@ public class MainActivity extends BaseActivity {
         AppBarConfiguration configuration = new AppBarConfiguration.Builder(mBnv.getMenu()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, configuration);
         NavigationUI.setupWithNavController(mBnv, navController);*/
-        mMinTabAdapter = new MainTabAdapter(mFragments,getSupportFragmentManager());
+        mMinTabAdapter = new MainTabAdapter(mFragments, getSupportFragmentManager());
         mMainTab.setAdapter(mMinTabAdapter);
         //设置图标颜色
         mBnv.setItemIconTintList(null);
@@ -82,10 +100,10 @@ public class MainActivity extends BaseActivity {
                 new int[]{android.R.attr.state_checked}
         };
 
-        int[] colors = new int[]{getResources().getColor(R.color.black,null),
-                getResources().getColor(R.color.color_D33D3C,null)
+        int[] colors = new int[]{getResources().getColor(R.color.black, null),
+                getResources().getColor(R.color.color_D33D3C, null)
         };
-        mBnv.setItemTextColor(new ColorStateList(states,colors));
+        mBnv.setItemTextColor(new ColorStateList(states, colors));
     }
 
     @Override
@@ -112,7 +130,7 @@ public class MainActivity extends BaseActivity {
             setStatusBarColor(menuItem.getItemId());
             Jzvd.releaseAllVideos();//底部页签切换或者是下拉刷新，释放资源
             Log.d("menu", menuItem.getTitle().toString() + "更换statusBar颜色");
-            switch (menuItem.getItemId()){
+            switch (menuItem.getItemId()) {
                 case R.id.homeFragment:
                     mMainTab.setCurrentItem(0);
                     break;
@@ -125,6 +143,19 @@ public class MainActivity extends BaseActivity {
                 case R.id.mineFragment:
                     mMainTab.setCurrentItem(3);
                     break;
+            }
+            //当前页和点击页同一页时触发刷新，使用event bus
+            int position = mPos.get(mMainTab.getCurrentItem());
+            if (position == menuItem.getItemId() && mMainTab.getCurrentItem() == 0 || mMainTab.getCurrentItem() == 1) {
+                //如果当前页码和点击的页码一致,进行下拉刷新
+                String channelCode = "";
+                if (position == 0) {
+                    channelCode = ((HomeFragment) mFragments.get(0)).getCurrentChannelCode();//获取到首页当前显示的fragment的频道
+                } else {
+                    channelCode = ((VideoFragment) mFragments.get(1)).getCurrentChannelCode();//获取到视频当前显示的fragment的频道
+                }
+                //本来用于设置动画，但是BottomNavigation无法设置MenuItem动画，遂摒弃
+//                postTabRefreshEvent(menuItem, mMainTab.getCurrentItem(), channelCode);//发送下拉刷新的事件
             }
             return true;
         });
@@ -145,4 +176,43 @@ public class MainActivity extends BaseActivity {
             }
         });
     }
+
+    private void postTabRefreshEvent(MenuItem menuItem,int position,String channelCode){
+        TabRefreshEvent event = new TabRefreshEvent(menuItem,channelCode,position);
+        EventBus.getDefault().post(event);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onRefreshCompletedEvent(TabRefreshCompletedEvent event) {
+        //接收到刷新完成的事件，取消旋转动画，更换底部首页页签图标
+        MenuItem bottomItem = mBnv.getMenu().getItem(0);
+
+        cancelTabLoading(bottomItem);//停止旋转动画
+
+        bottomItem.setIcon(R.mipmap.tab_home_selected);//更换成首页原来图标
+        bottomItem.setChecked(true);//刷新图标
+    }
+
+    /**
+     * 停止首页页签的旋转动画
+     */
+    private void cancelTabLoading(MenuItem bottomItem) {
+        Animation animation = bottomItem.getActionView().getAnimation();
+        if (animation != null) {
+            animation.cancel();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        registerEventBus(MainActivity.this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        unregisterEventBus(MainActivity.this);
+    }
+
 }

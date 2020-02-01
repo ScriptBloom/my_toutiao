@@ -16,14 +16,6 @@ public class MyApp extends BaseApp {
         return mContext;
     }
 
-    public static Handler getMainHandler() {
-        return getMainHandler();
-    }
-
-    public static long getMainThreadId() {
-        return getMainThreadId();
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();

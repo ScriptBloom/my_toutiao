@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.ButterKnife;
 
 
@@ -86,5 +88,21 @@ public abstract class BaseActivity extends AppCompatActivity{
         return super.onSupportNavigateUp();
     }
 
+
+    public boolean isEventBusRegisted(Object subscribe) {
+        return EventBus.getDefault().isRegistered(subscribe);
+    }
+
+    public void registerEventBus(Object subscribe) {
+        if (!isEventBusRegisted(subscribe)) {
+            EventBus.getDefault().register(subscribe);
+        }
+    }
+
+    public void unregisterEventBus(Object subscribe) {
+        if (isEventBusRegisted(subscribe)) {
+            EventBus.getDefault().unregister(subscribe);
+        }
+    }
 
 }

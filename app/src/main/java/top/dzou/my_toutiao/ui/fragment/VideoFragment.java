@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import cn.jzvd.Jzvd;
 import me.weyye.library.colortrackview.ColorTrackTabLayout;
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.api.Constant;
@@ -101,7 +102,8 @@ public class VideoFragment extends BaseFragment {
 
             @Override
             public void onPageSelected(int position) {
-
+                //当页签切换的时候，如果有播放视频，则释放资源
+                Jzvd.releaseAllVideos();
             }
 
             @Override
@@ -114,5 +116,10 @@ public class VideoFragment extends BaseFragment {
     @Override
     protected void loadData() {
 
+    }
+
+    public String getCurrentChannelCode(){
+        int currentItem = mViewPager.getCurrentItem();
+        return mChannels.get(currentItem).channelCode;
     }
 }

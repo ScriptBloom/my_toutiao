@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.ButterKnife;
 
 public abstract class BaseFragment<T extends BasePresenter> extends LazyLoadFragment {
@@ -72,5 +74,21 @@ public abstract class BaseFragment<T extends BasePresenter> extends LazyLoadFrag
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.mActivity = (Activity) context;
+    }
+
+    public boolean isEventBusRegisted(Object subscribe) {
+        return EventBus.getDefault().isRegistered(subscribe);
+    }
+
+    public void registerEventBus(Object subscribe) {
+        if (!isEventBusRegisted(subscribe)) {
+            EventBus.getDefault().register(subscribe);
+        }
+    }
+
+    public void unregisterEventBus(Object subscribe) {
+        if (isEventBusRegisted(subscribe)) {
+            EventBus.getDefault().unregister(subscribe);
+        }
     }
 }

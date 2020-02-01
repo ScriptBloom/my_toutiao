@@ -234,4 +234,9 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
     protected void loadData() {
 
     }
+
+    public String getCurrentChannelCode(){
+        int currentItem = mViewPager.getCurrentItem();
+        return mSelectedChannels.get(currentItem).channelCode;
+    }
 }
