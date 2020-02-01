@@ -1,5 +1,6 @@
 package top.dzou.my_toutiao.ui.activity;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -73,6 +74,18 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupWithNavController(mBnv, navController);*/
         mMinTabAdapter = new MainTabAdapter(mFragments,getSupportFragmentManager());
         mMainTab.setAdapter(mMinTabAdapter);
+        //设置图标颜色
+        mBnv.setItemIconTintList(null);
+        //使用创建ColorStateList的方式来设置text颜色
+        int[][] states = new int[][]{
+                new int[]{-android.R.attr.state_checked},
+                new int[]{android.R.attr.state_checked}
+        };
+
+        int[] colors = new int[]{getResources().getColor(R.color.black,null),
+                getResources().getColor(R.color.color_D33D3C,null)
+        };
+        mBnv.setItemTextColor(new ColorStateList(states,colors));
     }
 
     @Override

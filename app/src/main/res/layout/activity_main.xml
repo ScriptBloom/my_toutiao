@@ -21,6 +21,7 @@
         app:menu="@menu/my_menu"
         app:labelVisibilityMode="labeled"
         android:background="@color/color_F3F5F4"
+        app:itemTextColor="@drawable/nav_item_color_selector"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
