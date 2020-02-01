@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     tools:context=".ui.fragment.NewsListFragment">
 
+    <top.dzou.ui_kit.tip_notice.TipView
+        android:id="@+id/tip_view"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:visibility="gone"
+        app:tipBackgroundColor="@color/color_D5E8F6"
+        app:tipText="@string/net_error_msg"
+        app:tipTextColor="@color/color_4592C6"
+        app:tipTextSize="14sp"/>
 
-</FrameLayout>
+    <top.dzou.ui_kit.swipe_rv.SwipeFreshRecyclerView
+        android:id="@+id/rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+
+</LinearLayout>

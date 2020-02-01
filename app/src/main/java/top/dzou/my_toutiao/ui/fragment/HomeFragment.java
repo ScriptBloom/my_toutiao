@@ -51,7 +51,7 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
     @BindView(R.id.iv_operation) ImageView mImgView;
 
     private FragmentStatePagerAdapter pagerAdapter;
-    private List<Fragment> fragments = new ArrayList<>();
+    private List<NewsListFragment> fragments = new ArrayList<>();
     private List<Channel> selectedChannels = new ArrayList<>();
     private List<Channel> unSelectedChannels = new ArrayList<>();
     private static Gson gson = new GsonBuilder().create();
@@ -207,5 +207,10 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
         datas.remove(starPos);
         //添加到现在的位置
         datas.add(endPos, o);
+    }
+
+    @Override
+    protected void loadData() {
+
     }
 }

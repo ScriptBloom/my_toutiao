@@ -12,10 +12,10 @@ import androidx.fragment.app.Fragment;
 
 import butterknife.ButterKnife;
 
-public abstract class BaseFragment<T extends BasePresenter> extends Fragment {
-    private Activity mActivity;
-    private View rootView;
-    private T mPresenter;
+public abstract class BaseFragment<T extends BasePresenter> extends LazyLoadFragment {
+    protected Activity mActivity;
+    protected View rootView;
+    protected T mPresenter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,7 @@ public abstract class BaseFragment<T extends BasePresenter> extends Fragment {
     protected abstract int getContentLayoutId();
 
     protected abstract T createPresenter();
+
 
     @Override
     public void onDestroy() {

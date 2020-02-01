@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -24,6 +26,8 @@ public class UIUtils {
     private static final String TAG_FAKE_STATUS_BAR_VIEW = "statusBarView";
     private static final String TAG_MARGIN_ADDED = "marginAdded";
 
+    public static Toast mToast;
+
     public static void hideStatusBar(AppCompatActivity activity){
         activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
@@ -34,6 +38,52 @@ public class UIUtils {
 
     public static Context getContext() {
         return MyApp.getContext();
+    }
+
+    public static void showToast(String msg) {
+        showToast(msg, Toast.LENGTH_SHORT);
+    }
+
+    public static void showToast(String msg, int duration) {
+        if (mToast == null) {
+            mToast = Toast.makeText(getContext(), "", duration);
+        }
+        mToast.setText(msg);
+        mToast.show();
+    }
+
+    /**
+     * 安全的执行一个任务
+     *
+     * @param task
+     */
+    public static void postTaskSafely(Runnable task) {
+        int curThreadId = android.os.Process.myTid();
+        // 如果当前线程是主线程
+        if (curThreadId == getMainThreadId()) {
+            task.run();
+        } else {
+            // 如果当前线程不是主线程
+            getMainThreadHandler().post(task);
+        }
+    }
+
+    /**
+     * 得到主线程Handler
+     *
+     * @return
+     */
+    public static Handler getMainThreadHandler() {
+        return MyApp.getMainHandler();
+    }
+
+    /**
+     * 得到主线程id
+     *
+     * @return
+     */
+    public static long getMainThreadId() {
+        return MyApp.getMainThreadId();
     }
 
     /**

@@ -32,4 +32,9 @@ public class MicroToutiaoFragment extends BaseFragment {
     protected BasePresenter createPresenter() {
         return null;
     }
+
+    @Override
+    protected void loadData() {
+
+    }
 }

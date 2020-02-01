@@ -9,12 +9,13 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import java.util.List;
 
 import top.dzou.my_toutiao.model.Channel;
+import top.dzou.my_toutiao.ui.fragment.NewsListFragment;
 
 public class ChannelPageAdapter extends FragmentStatePagerAdapter {
-    private List<Fragment> listFragments;
+    private List<NewsListFragment> listFragments;
     private List<Channel> channels;
 
-    public ChannelPageAdapter(@NonNull FragmentManager fm, int behavior, List<Fragment> listFragments,
+    public ChannelPageAdapter(@NonNull FragmentManager fm, int behavior, List<NewsListFragment> listFragments,
                               List<Channel> channels) {
         super(fm, behavior);
         this.listFragments = listFragments;

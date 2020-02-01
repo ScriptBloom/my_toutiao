@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':ui-kit'
 rootProject.name='my_toutiao'
