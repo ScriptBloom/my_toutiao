@@ -30,8 +30,10 @@ import top.dzou.my_toutiao.ui.adapter.ChannelPageAdapter;
  */
 public class VideoFragment extends BaseFragment {
 
-    @BindView(R.id.viewpager) ViewPager mViewPager;
-    @BindView(R.id.tab_channel) TabLayout mTabLayout;
+    @BindView(R.id.viewpager)
+    ViewPager mViewPager;
+    @BindView(R.id.tab_channel)
+    TabLayout mTabLayout;
 
     private List<Channel> mChannels = new ArrayList<>();
     private List<NewsListFragment> mFragments = new ArrayList<>();
@@ -57,16 +59,18 @@ public class VideoFragment extends BaseFragment {
     @Override
     protected void initData() {
         super.initData();
+        mFragments = new ArrayList<>();
+        mChannels = new ArrayList<>();
         String[] videoChannels = getResources().getStringArray(R.array.channel_video);
         String[] viedeoChannelCodes = getResources().getStringArray(R.array.channel_code_video);
-        for(int i=0;i<videoChannels.length;i++){
-            mChannels.add(new Channel(videoChannels[i],viedeoChannelCodes[i]));
+        for (int i = 0; i < videoChannels.length; i++) {
+            mChannels.add(new Channel(videoChannels[i], viedeoChannelCodes[i]));
         }
         for (Channel channel : mChannels) {
             NewsListFragment fragment = new NewsListFragment();
             Bundle bundle = new Bundle();
-            bundle.putString(Constant.CHANNEL_CODE,channel.getChannelCode());
-            bundle.putBoolean(Constant.IS_VIDEO_LIST,true);
+            bundle.putString(Constant.CHANNEL_CODE, channel.getChannelCode());
+            bundle.putBoolean(Constant.IS_VIDEO_LIST, true);
             fragment.setArguments(bundle);
             mFragments.add(fragment);
         }
@@ -79,7 +83,7 @@ public class VideoFragment extends BaseFragment {
         mAdapter = new ChannelPageAdapter(getChildFragmentManager(),
                 FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, mFragments, mChannels);
         mViewPager.setAdapter(mAdapter);
-        mViewPager.setOffscreenPageLimit(mChannels.size());
+        mViewPager.setOffscreenPageLimit(mFragments.size());
         //设置每个Tab的内边距
 //        mTabLayout.setTabPaddingLeftAndRight(UIUtils.dip2Px(10), UIUtils.dip2Px(10));
         mTabLayout.setupWithViewPager(mViewPager, true);

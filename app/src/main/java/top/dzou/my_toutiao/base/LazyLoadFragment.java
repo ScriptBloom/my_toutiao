@@ -8,6 +8,9 @@ import androidx.fragment.app.FragmentManager;
 
 import java.util.List;
 
+/**
+ * 懒加载Fragment数据
+ */
 public abstract class LazyLoadFragment extends Fragment {
     private boolean isViewCreated; // 界面是否已创建完成
     private boolean isVisibleToUser; // 是否对用户可见
@@ -44,6 +47,7 @@ public abstract class LazyLoadFragment extends Fragment {
      * ViewPager场景下，当前fragment可见，如果其子fragment也可见，则尝试让子fragment请求数据
      */
     private void dispatchParentVisibleState() {
+        if (!isAdded()) return;//如果没有attach则return 代表没有子fragment
         FragmentManager fragmentManager = getChildFragmentManager();
         List<Fragment> fragments = fragmentManager.getFragments();
         if (fragments.isEmpty()) {

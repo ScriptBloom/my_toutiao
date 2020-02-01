@@ -4,6 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 
+import org.litepal.LitePal;
+import org.litepal.LitePalApplication;
+
 public class MyApp extends BaseApp {
 
     @SuppressLint("CI_StaticFieldLeak")
@@ -25,5 +28,6 @@ public class MyApp extends BaseApp {
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
+        LitePal.initialize(getApplicationContext());//初始化litePal
     }
 }

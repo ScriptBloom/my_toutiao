@@ -2,13 +2,9 @@ package top.dzou.my_toutiao.ui.fragment;
 
 
 import android.content.Intent;
-import android.os.Bundle;
-
-
 import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -45,6 +41,7 @@ import top.dzou.ui_kit.tip_notice.TipView;
 
 public class NewsListFragment extends BaseFragment<NewsListPresenter> implements INewsView {
 
+    private static final String TAG = "NewsListFragment";
     @BindView(R.id.rv) SwipeFreshRecyclerView mRv;
     @BindView(R.id.tip_view) TipView mTip;
 
@@ -78,39 +75,36 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         });
         mRv.setOnRefresh(mRefreshListener);
 
-        mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                News news = mNewsList.get(position);
-                String itemId = news.item_id;
-                StringBuffer urlSb = new StringBuffer("http://m.toutiao.com/i");
-                urlSb.append(itemId).append("/info/");
-                String url = urlSb.toString();//http://m.toutiao.com/i6412427713050575361/info/
-                Intent intent = null;
-                if (news.has_video) {
-                    intent = new Intent(mActivity, VideoDetailActivity.class);
-                    if (JZMediaManager.instance() != null && JzvdMgr.getCurrentJzvd() != null) {
-                        long progress = JZMediaManager.instance().getCurrentPosition();
-                        if (progress != 0) {
-                            intent.putExtra(VideoDetailActivity.PROGRESS, progress);
-                        }
-                        VideoInfo videoInfo = news.video_detail_info;
-                        String videoUrl = "";
-                        if (videoInfo != null && !TextUtils.isEmpty(videoInfo.parse_video_url)) {
-                            videoUrl = videoInfo.parse_video_url;
-                        }
-                        intent.putExtra(VideoDetailActivity.VIDEO_URL, videoUrl);
+        mAdapter.setOnItemClickListener((adapter, view, position) -> {
+            News news = mNewsList.get(position);
+            String itemId = news.item_id;
+            StringBuffer urlSb = new StringBuffer("http://m.toutiao.com/i");
+            urlSb.append(itemId).append("/info/");
+            String url = urlSb.toString();//http://m.toutiao.com/i6412427713050575361/info/
+            Intent intent = null;
+            if (news.has_video) {
+                intent = new Intent(mActivity, VideoDetailActivity.class);
+                if (JZMediaManager.instance() != null && JzvdMgr.getCurrentJzvd() != null) {
+                    long progress = JZMediaManager.instance().getCurrentPosition();
+                    if (progress != 0) {
+                        intent.putExtra(VideoDetailActivity.PROGRESS, progress);
                     }
-                } else {
-                    //todo
+                    VideoInfo videoInfo = news.video_detail_info;
+                    String videoUrl = "";
+                    if (videoInfo != null && !TextUtils.isEmpty(videoInfo.parse_video_url)) {
+                        videoUrl = videoInfo.parse_video_url;
+                    }
+                    intent.putExtra(VideoDetailActivity.VIDEO_URL, videoUrl);
                 }
-                intent.putExtra(VideoDetailActivity.CHANNEL_CODE, mChannelCode);
-                intent.putExtra(VideoDetailActivity.POSITION, position);
-                intent.putExtra(VideoDetailActivity.DETAIL_URL, url);
-                intent.putExtra(VideoDetailActivity.GROUP_ID, news.group_id);
-                intent.putExtra(VideoDetailActivity.ITEM_ID, news.item_id);
-                startActivity(intent);
+            } else {
+                //todo
             }
+            intent.putExtra(VideoDetailActivity.CHANNEL_CODE, mChannelCode);
+            intent.putExtra(VideoDetailActivity.POSITION, position);
+            intent.putExtra(VideoDetailActivity.DETAIL_URL, url);
+            intent.putExtra(VideoDetailActivity.GROUP_ID, news.group_id);
+            intent.putExtra(VideoDetailActivity.ITEM_ID, news.item_id);
+            startActivity(intent);
         });
 //        mAdapter.setEnableLoadMore(true);
         if (isVideoFg) {
@@ -137,15 +131,16 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     @Override
     protected void initView(View rootView) {
         super.initView(rootView);
+//        Log.d(TAG, String.valueOf(mRv==null)+String.valueOf(mActivity.getLocalClassName()));
         mRv.setLayoutManager(new GridLayoutManager(mActivity, 1));
         if (isVideoFg) {
-            mAdapter = new VideoRvAdapter(mNewsList);
-            mRv.setAdapter(mAdapter);
+            mAdapter = new VideoRvAdapter(mNewsList,mActivity);
         } else {
             //todo
             //其他新闻列表
-            mAdapter = new NewsListAdapter(mNewsList,mChannelCode);
+            mAdapter = new NewsListAdapter(mNewsList,mChannelCode,mActivity);
         }
+        mRv.setAdapter(mAdapter);
     }
 
     @Override

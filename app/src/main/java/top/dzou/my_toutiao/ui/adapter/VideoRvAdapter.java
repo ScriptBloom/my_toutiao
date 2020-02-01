@@ -1,5 +1,6 @@
 package top.dzou.my_toutiao.ui.adapter;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
@@ -21,22 +22,15 @@ import top.dzou.my_toutiao.ui.widget.MyJzvdStd;
 import top.dzou.my_toutiao.utils.TimeUtils;
 import top.dzou.my_toutiao.utils.UIUtils;
 import top.dzou.my_toutiao.utils.VideoParser;
+import top.dzou.ui_kit.swipe_rv.RefreshHeaderRvAdapter;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class VideoRvAdapter extends BaseQuickAdapter<News, BaseViewHolder> {
+public class VideoRvAdapter extends RefreshHeaderRvAdapter<News> {
 
-    public VideoRvAdapter(int layoutResId, @Nullable List<News> data) {
-        super(layoutResId, data);
-    }
-
-    public VideoRvAdapter(@Nullable List<News> data) {
-        this(R.layout.item_video_list, data);
-    }
-
-    public VideoRvAdapter(int layoutResId) {
-        this(layoutResId, null);
+    public VideoRvAdapter(@Nullable List<News> data, Context context) {
+        super(R.layout.item_video_list, data,context);
     }
 
     @Override

@@ -8,20 +8,24 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
+
 import java.util.List;
 
 import top.dzou.ui_kit.R;
 
-public class RefreshHeaderRvAdapter extends RecyclerView.Adapter<RefreshHeaderRvAdapter.RefreshViewHolder> {
+public abstract class RefreshHeaderRvAdapter<T> extends BaseQuickAdapter<T, BaseViewHolder> {
 
     private static final int TYPE_NORMAL = 0;
     private static final int TYPE_HEADER = 1;
 
     private IRefresh mRefresh;
-    private List<String> mDatas;
+    private List<T> mDatas;
     private LayoutInflater mInflater;
 
-    public RefreshHeaderRvAdapter(List<String> mDatas, Context context) {
+    public RefreshHeaderRvAdapter(int layoutResId,List<T> mDatas, Context context) {
+        super(layoutResId,mDatas);
         this.mDatas = mDatas;
         this.mInflater = LayoutInflater.from(context);
     }
@@ -32,16 +36,19 @@ public class RefreshHeaderRvAdapter extends RecyclerView.Adapter<RefreshHeaderRv
 
     @NonNull
     @Override
-    public RefreshViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if(viewType == TYPE_HEADER){
-            return new RefreshViewHolder(mRefresh.getHeaderView());
+            return new BaseViewHolder(mRefresh.getHeaderView());
         }else{
-            return new RefreshViewHolder(mInflater.inflate(R.layout.item_normal,parent,false));
+            return new BaseViewHolder(mInflater.inflate(R.layout.item_normal,parent,false));
         }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RefreshViewHolder holder, int position) {
+    protected abstract void convert(BaseViewHolder baseViewHolder, T t);
+
+    @Override
+    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
 
     }
 
@@ -56,12 +63,5 @@ public class RefreshHeaderRvAdapter extends RecyclerView.Adapter<RefreshHeaderRv
             return TYPE_HEADER;
         }
         return TYPE_NORMAL;
-    }
-
-    class RefreshViewHolder extends RecyclerView.ViewHolder{
-
-        public RefreshViewHolder(@NonNull View itemView) {
-            super(itemView);
-        }
     }
 }

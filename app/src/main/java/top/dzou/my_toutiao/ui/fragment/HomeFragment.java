@@ -29,6 +29,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import cn.jzvd.Jzvd;
 import me.weyye.library.colortrackview.ColorTrackTabLayout;
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.api.Constant;
@@ -50,12 +51,12 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
     @BindView(R.id.viewpager) ViewPager mViewPager;
     @BindView(R.id.iv_operation) ImageView mImgView;
 
-    private FragmentStatePagerAdapter pagerAdapter;
-    private List<NewsListFragment> fragments = new ArrayList<>();
-    private List<Channel> selectedChannels = new ArrayList<>();
-    private List<Channel> unSelectedChannels = new ArrayList<>();
-    private static Gson gson = new GsonBuilder().create();
-    private String[] channelCodes;
+    private FragmentStatePagerAdapter mPagerAdapter;
+    private List<NewsListFragment> mFragments ;
+    private List<Channel> mSelectedChannels ;
+    private List<Channel> mUnSelectedChannels ;
+    private static Gson sGson = new GsonBuilder().create();
+    private String[] mChannelCodes;
 
     public HomeFragment() {
     }
@@ -74,6 +75,9 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
     @Override
     protected void initData() {
         super.initData();
+        mSelectedChannels = new ArrayList<>();
+        mUnSelectedChannels = new ArrayList<>();
+        mFragments = new ArrayList<>();
         //整理数据 如果选择过就用选择的，没有就用全部
         String selected = PreUtils.getString(Constant.SELECTED_CHANNEL_JSON, "");
         String unSelected = PreUtils.getString(Constant.UNSELECTED_CHANNEL_JSON, "");
@@ -81,36 +85,36 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
             String[] channels = getResources().getStringArray(R.array.channel);
             String[] channelCodes = getResources().getStringArray(R.array.channel_code);
             for (int i = 0; i < channelCodes.length; i++) {
-                selectedChannels.add(new Channel(channels[i], channelCodes[i]));
+                mSelectedChannels.add(new Channel(channels[i], channelCodes[i]));
             }
-            String channelJson = gson.toJson(selectedChannels);
+            String channelJson = sGson.toJson(mSelectedChannels);
             PreUtils.putString(Constant.SELECTED_CHANNEL_JSON, channelJson);
         } else {
-            selectedChannels = gson.fromJson(selected, new TypeToken<List<Channel>>() {
+            mSelectedChannels = sGson.fromJson(selected, new TypeToken<List<Channel>>() {
             }.getType());
-            unSelectedChannels = gson.fromJson(unSelected, new TypeToken<List<Channel>>() {
+            mUnSelectedChannels = sGson.fromJson(unSelected, new TypeToken<List<Channel>>() {
             }.getType());
-            if(unSelectedChannels==null) unSelectedChannels = new ArrayList<>();
+            if(mUnSelectedChannels==null) mUnSelectedChannels = new ArrayList<>();
         }
         //把tab添加到fragment的arguments中
-        channelCodes = getResources().getStringArray(R.array.channel_code);
-        for (Channel channel : selectedChannels) {
+        mChannelCodes = getResources().getStringArray(R.array.channel_code);
+        for (Channel channel : mSelectedChannels) {
             NewsListFragment fragment = new NewsListFragment();
             Bundle bundle = new Bundle();
             bundle.putString(Constant.CHANNEL_CODE, channel.getChannelCode());
-            bundle.putBoolean(Constant.IS_VIDEO_LIST, channel.getChannelCode().equals(channelCodes[1]));
+            bundle.putBoolean(Constant.IS_VIDEO_LIST, channel.getChannelCode().equals(mChannelCodes[1]));
             fragment.setArguments(bundle);
-            fragments.add(fragment);
+            mFragments.add(fragment);
         }
     }
 
     @Override
     protected void initView(View rootView) {
         super.initView(rootView);
-        pagerAdapter = new ChannelPageAdapter(getChildFragmentManager(),
-                FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, fragments, selectedChannels);
-        mViewPager.setAdapter(pagerAdapter);
-        mViewPager.setOffscreenPageLimit(selectedChannels.size());
+        mPagerAdapter = new ChannelPageAdapter(getChildFragmentManager(),
+                FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, mFragments, mSelectedChannels);
+        mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setOffscreenPageLimit(mSelectedChannels.size());
         //设置每个Tab的内边距
 //        mTabLayout.setTabPaddingLeftAndRight(UIUtils.dip2Px(10), UIUtils.dip2Px(10));
         mTabLayout.setupWithViewPager(mViewPager, true);
@@ -127,14 +131,14 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
         switch (view.getId()){
             case R.id.iv_operation:
                 Log.d("dzou","点击添加channel");
-                ChannelDialogFragment dialogFragment = ChannelDialogFragment.getInstance(selectedChannels,unSelectedChannels);
+                ChannelDialogFragment dialogFragment = ChannelDialogFragment.getInstance(mSelectedChannels,mUnSelectedChannels);
                 dialogFragment.setOnChannelListener(this);
                 dialogFragment.show(getChildFragmentManager(), "CHANNEL");
                 dialogFragment.setmOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
-                        pagerAdapter.notifyDataSetChanged();
-                        mViewPager.setOffscreenPageLimit(selectedChannels.size());
+                        mPagerAdapter.notifyDataSetChanged();
+                        mViewPager.setOffscreenPageLimit(mSelectedChannels.size());
                         mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
 //                        mTabLayout.setCurrentItem(mTabLayout.getSelectedTabPosition());
                         ViewGroup slidingTabStrip = (ViewGroup) mTabLayout.getChildAt(0);
@@ -144,8 +148,8 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
                         slidingTabStrip.setMinimumWidth(slidingTabStrip.getMeasuredWidth() + mImgView.getMeasuredWidth());
 
                         //保存选中和未选中的channel
-                        PreUtils.putString(Constant.SELECTED_CHANNEL_JSON, gson.toJson(selectedChannels));
-                        PreUtils.putString(Constant.UNSELECTED_CHANNEL_JSON, gson.toJson(unSelectedChannels));
+                        PreUtils.putString(Constant.SELECTED_CHANNEL_JSON, sGson.toJson(mSelectedChannels));
+                        PreUtils.putString(Constant.UNSELECTED_CHANNEL_JSON, sGson.toJson(mUnSelectedChannels));
                     }
                 });
                 break;
@@ -156,6 +160,23 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
     @Override
     protected void initListener() {
         super.initListener();
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //当页签切换的时候，如果有播放视频，则释放资源
+                Jzvd.releaseAllVideos();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         mTabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -176,29 +197,29 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
 
     @Override
     public void onItemMove(int starPos, int endPos) {
-        listMove(selectedChannels, starPos, endPos);
-        listMove(fragments, starPos, endPos);
+        listMove(mSelectedChannels, starPos, endPos);
+        listMove(mFragments, starPos, endPos);
     }
 
 
     @Override
     public void onMoveToMyChannel(int starPos, int endPos) {
         //移动到我的频道
-        Channel channel = unSelectedChannels.remove(starPos);
-        selectedChannels.add(endPos, channel);
+        Channel channel = mUnSelectedChannels.remove(starPos);
+        mSelectedChannels.add(endPos, channel);
         NewsListFragment newsFragment = new NewsListFragment();
         Bundle bundle = new Bundle();
         bundle.putString(Constant.CHANNEL_CODE, channel.channelCode);
-        bundle.putBoolean(Constant.IS_VIDEO_LIST, channel.channelCode.equals(channelCodes[1]));
+        bundle.putBoolean(Constant.IS_VIDEO_LIST, channel.channelCode.equals(mChannelCodes[1]));
         newsFragment.setArguments(bundle);
-        fragments.add(newsFragment);
+        mFragments.add(newsFragment);
     }
 
     @Override
     public void onMoveToOtherChannel(int starPos, int endPos) {
         //移动到推荐频道
-        unSelectedChannels.add(endPos, selectedChannels.remove(starPos));
-        fragments.remove(starPos);
+        mUnSelectedChannels.add(endPos, mSelectedChannels.remove(starPos));
+        mFragments.remove(starPos);
     }
 
     private void listMove(List datas, int starPos, int endPos) {
