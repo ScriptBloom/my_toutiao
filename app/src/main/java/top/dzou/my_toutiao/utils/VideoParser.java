@@ -1,5 +1,7 @@
 package top.dzou.my_toutiao.utils;
 
+import android.util.Log;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,11 +15,13 @@ import top.dzou.my_toutiao.model.VideoModel;
 
 public abstract class VideoParser {
 
+    private static final String TAG = VideoParser.class.getSimpleName();
     public void decodeVideo(String srcUrl){
         Call<String> videoParseHtml = ApiRetrofit.getServiceInstance().getVideoHtml("https://pv.vlogdownloader.com");
         videoParseHtml.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
+                Log.d(TAG,"response: "+response.body());
                 Pattern pattern = Pattern.compile("var hash = \"(.+)\"");
                 Matcher matcher = pattern.matcher(response.body());
                 if (matcher.find()) {
@@ -45,7 +49,7 @@ public abstract class VideoParser {
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
-
+                onDecodeError(t.getMessage());
             }
         });
     }

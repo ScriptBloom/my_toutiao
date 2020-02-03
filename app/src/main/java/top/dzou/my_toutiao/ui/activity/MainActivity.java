@@ -85,7 +85,7 @@ public class MainActivity extends BaseActivity {
         super.initView();
         //设置statusBar
         UIUtils.setStatusBarColor(this, UIUtils.getColor(mStatusColors.get(R.id.homeFragment)));
-        UIUtils.hideActionBar(MainActivity.this);
+//        UIUtils.hideActionBar(MainActivity.this);
         /*NavController navController = Navigation.findNavController(MainActivity.this, R.id.fragment);
         AppBarConfiguration configuration = new AppBarConfiguration.Builder(mBnv.getMenu()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, configuration);
@@ -129,7 +129,6 @@ public class MainActivity extends BaseActivity {
         mBnv.setOnNavigationItemSelectedListener(menuItem -> {
             setStatusBarColor(menuItem.getItemId());
             Jzvd.releaseAllVideos();//底部页签切换或者是下拉刷新，释放资源
-            Log.d("menu", menuItem.getTitle().toString() + "更换statusBar颜色");
             switch (menuItem.getItemId()) {
                 case R.id.homeFragment:
                     mMainTab.setCurrentItem(0);

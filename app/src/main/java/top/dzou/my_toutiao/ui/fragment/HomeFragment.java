@@ -177,7 +177,7 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
 
             }
         });
-        mTabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
+        /*mTabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 
@@ -192,7 +192,7 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
             public void onTabReselected(TabLayout.Tab tab) {
 
             }
-        });
+        });*/
     }
 
     @Override

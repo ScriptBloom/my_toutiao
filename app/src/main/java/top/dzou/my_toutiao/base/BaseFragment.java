@@ -11,14 +11,18 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.github.nukc.stateview.StateView;
+
 import org.greenrobot.eventbus.EventBus;
 
 import butterknife.ButterKnife;
+import top.dzou.my_toutiao.R;
 
 public abstract class BaseFragment<T extends BasePresenter> extends LazyLoadFragment {
     protected Activity mActivity;
     protected View rootView;
     protected T mPresenter;
+    protected StateView mStateView;//用于显示加载中、网络异常，空布局、内容布局
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -31,7 +35,11 @@ public abstract class BaseFragment<T extends BasePresenter> extends LazyLoadFrag
         if (rootView == null) {
             rootView = inflater.inflate(getContentLayoutId(),container,false);
             ButterKnife.bind(this, rootView);
-
+            mStateView = StateView.inject(getStateViewRoot());
+            if (mStateView != null){
+                mStateView.setLoadingResource(R.layout.page_loading);
+                mStateView.setRetryResource(R.layout.page_net_error);
+            }
             initData();
             initView(rootView);
             initListener();
@@ -41,6 +49,11 @@ public abstract class BaseFragment<T extends BasePresenter> extends LazyLoadFrag
                 parent.removeView(rootView);
             }
         }
+        return rootView;
+    }
+
+    /**StateView的根布局，默认是整个界面，如果需要变换可以重写此方法*/
+    public View getStateViewRoot() {
         return rootView;
     }
 

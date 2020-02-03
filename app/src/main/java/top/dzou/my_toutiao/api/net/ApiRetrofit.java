@@ -15,6 +15,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 import top.dzou.my_toutiao.app.MyApp;
 import top.dzou.my_toutiao.utils.NetUtils;
 
@@ -97,10 +98,10 @@ public class ApiRetrofit {
                 if(RETROFIT==null){
                     RETROFIT = new Retrofit.Builder()
                             .baseUrl(BASE_SERVER_URL)
+                            .addConverterFactory(ScalarsConverterFactory.create())
                             .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
-                                    .setLenient()
+//                                    .setLenient()
                                     .create()))
-//                            .addConverterFactory(ScalarsConverterFactory.create())
 //                            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())//支持RxJava
                             .client(new OkHttpClient.Builder()
                                     .addInterceptor(mCacheInterceptor)

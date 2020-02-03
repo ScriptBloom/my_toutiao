@@ -2,6 +2,8 @@ package top.dzou.my_toutiao.ui.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -33,8 +35,20 @@ public class VideoRvAdapter extends RefreshHeaderRvAdapter<News> {
         super(R.layout.item_video_list, data,context);
     }
 
+    @NonNull
+    @Override
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        //更新Rv View需要在主线程执行
+        UIUtils.postTaskSafely(()->{
+            setHeaderView(mRefresh.getHeaderView());
+        });
+        return super.onCreateViewHolder(parent,viewType);
+    }
+
+
     @Override
     protected void convert(@NonNull BaseViewHolder helper, News news) {
+        Log.d(TAG,"convert");
         MyJzvdStd jzvdStd = helper.getView(R.id.video_player);
         helper.setVisible(R.id.ll_title, true);//显示标题栏
         helper.setText(R.id.tv_title, news.title);//设置标题
@@ -90,6 +104,8 @@ public class VideoRvAdapter extends RefreshHeaderRvAdapter<News> {
             private void parseVideo() {
                 if (isVideoParsing) {
                     return;
+                }else {
+                    isVideoParsing = true;
                 }
                 //隐藏开始按钮 显示加载中
                 jzvdStd.setAllControlsVisiblity(GONE, GONE, GONE, VISIBLE, VISIBLE, GONE, GONE);
@@ -132,7 +148,7 @@ public class VideoRvAdapter extends RefreshHeaderRvAdapter<News> {
             //todo
             @Override
             public void onChangeScreen() {
-
+                jzvdStd.intoFullScreen();
             }
         });
     }

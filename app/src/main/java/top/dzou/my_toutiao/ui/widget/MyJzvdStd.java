@@ -9,6 +9,7 @@ import android.view.OrientationEventListener;
 import android.view.View;
 import android.widget.SeekBar;
 
+import cn.jzvd.JZUserAction;
 import cn.jzvd.Jzvd;
 import cn.jzvd.JzvdStd;
 import top.dzou.my_toutiao.R;
@@ -38,8 +39,8 @@ public class MyJzvdStd extends JzvdStd {
     @Override
     public void init(Context context) {
         super.init(context);
-        mSensorManager = (SensorManager) context.getApplicationContext().getSystemService(SENSOR_SERVICE);
-        mSensorEventListener = new Jzvd.JZAutoFullscreenListener();
+//        mSensorManager = (SensorManager) context.getApplicationContext().getSystemService(SENSOR_SERVICE);
+//        mSensorEventListener = new Jzvd.JZAutoFullscreenListener();
         /*mOrientationEventListener = new OrientationEventListener(context.getApplicationContext()) {
             @Override
             public void onOrientationChanged(int orientation) {
@@ -55,14 +56,16 @@ public class MyJzvdStd extends JzvdStd {
 
     @Override
     public void onClick(View v) {
-        super.onClick(v);
         int i = v.getId();
         if (i == cn.jzvd.R.id.fullscreen) {
             Log.i(TAG, "onClick: fullscreen button");
         } else if (i == R.id.start) {
-            mVideoStateListener.onStart();
-            Log.i(TAG, "onClick: start button");
+            if (currentState == CURRENT_STATE_IDLE || currentState == CURRENT_STATE_NORMAL) {
+                mVideoStateListener.onStart();
+                Log.i(TAG, "onClick: start button");
+            }
         }
+        super.onClick(v);
     }
 
     @Override
@@ -140,6 +143,11 @@ public class MyJzvdStd extends JzvdStd {
     }
 
     @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//        super.onProgressChanged(seekBar, progress, fromUser);
+    }
+
+    @Override
     public void onStateError() {
         super.onStateError();
     }
@@ -148,6 +156,18 @@ public class MyJzvdStd extends JzvdStd {
     public void onStateAutoComplete() {
         super.onStateAutoComplete();
         Log.i(TAG, "Auto complete");
+    }
+
+    public void intoFullScreen(){
+        if (currentState == CURRENT_STATE_AUTO_COMPLETE) return;
+        if (currentScreen == SCREEN_WINDOW_FULLSCREEN) {
+            //quit fullscreen
+            backPress();
+        } else {
+            Log.d(TAG, "toFullscreenActivity [" + this.hashCode() + "] ");
+            onEvent(JZUserAction.ON_ENTER_FULLSCREEN);
+            startWindowFullscreen();
+        }
     }
 
     //changeUiTo 真能能修改ui的方法

@@ -20,9 +20,9 @@ public abstract class RefreshHeaderRvAdapter<T> extends BaseQuickAdapter<T, Base
     private static final int TYPE_NORMAL = 0;
     private static final int TYPE_HEADER = 1;
 
-    private IRefresh mRefresh;
-    private List<T> mDatas;
-    private LayoutInflater mInflater;
+    protected IRefresh mRefresh;
+    protected List<T> mDatas;
+    protected LayoutInflater mInflater;
 
     public RefreshHeaderRvAdapter(int layoutResId,List<T> mDatas, Context context) {
         super(layoutResId,mDatas);
@@ -34,34 +34,30 @@ public abstract class RefreshHeaderRvAdapter<T> extends BaseQuickAdapter<T, Base
         this.mRefresh = mRefresh;
     }
 
-    @NonNull
-    @Override
-    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if(viewType == TYPE_HEADER){
-            return new BaseViewHolder(mRefresh.getHeaderView());
-        }else{
-            return new BaseViewHolder(mInflater.inflate(R.layout.item_normal,parent,false));
-        }
-    }
+//    @NonNull
+//    @Override
+//    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//        if(viewType == TYPE_HEADER){
+//            return new BaseViewHolder(mRefresh.getHeaderView());
+//        }else{
+//            return new BaseViewHolder(mInflater.inflate(R.layout.item_normal,parent,false));
+//        }
+//    }
 
     @Override
     protected abstract void convert(BaseViewHolder baseViewHolder, T t);
 
-    @Override
-    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
 
-    }
+//    @Override
+//    public int getItemCount() {
+//        return mDatas.size();
+//    }
 
-    @Override
-    public int getItemCount() {
-        return mDatas.size();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if(position == 0){
-            return TYPE_HEADER;
-        }
-        return TYPE_NORMAL;
-    }
+//    @Override
+//    public int getItemViewType(int position) {
+//        if(position == 0){
+//            return BaseQuickAdapter.HEADER_VIEW;
+//        }
+//        return BaseQuickAdapter.EMPTY_VIEW;
+//    }
 }

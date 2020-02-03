@@ -14,7 +14,7 @@ public class FlashActivity extends BaseActivity {
     protected void initView() {
         super.initView();
         UIUtils.hideStatusBar(FlashActivity.this);
-        UIUtils.hideActionBar(FlashActivity.this);
+//        UIUtils.hideActionBar(FlashActivity.this);
         new Handler().postDelayed(() -> {
             startActivity(new Intent(FlashActivity.this, MainActivity.class));
             finish();

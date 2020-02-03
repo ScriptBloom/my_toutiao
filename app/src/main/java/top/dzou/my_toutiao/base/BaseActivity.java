@@ -5,23 +5,29 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.github.nukc.stateview.StateView;
+
 import org.greenrobot.eventbus.EventBus;
 
 import butterknife.ButterKnife;
+import top.dzou.my_toutiao.ui.activity.FlashActivity;
+import top.dzou.my_toutiao.utils.UIUtils;
 
 
 public abstract class BaseActivity extends AppCompatActivity{
+
+    protected StateView mStateView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 在界面未初始化之前调用的初始化窗口
         initWidows();
-
         if (initArgs(getIntent().getExtras())) {
             // 得到界面Id并设置到Activity界面中
             int layId = getContentLayoutId();
             setContentView(layId);
+            ButterKnife.bind(this);
             initBefore();
             initData();
             initView();

@@ -1,5 +1,7 @@
 package top.dzou.my_toutiao.mvp.presenter;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ import top.dzou.my_toutiao.utils.PreUtils;
 
 public class NewsListPresenter extends BasePresenter<INewsView> {
 
+    private static final String TAG = NewsListPresenter.class.getSimpleName();
+
     private long lastTime;
 
     public NewsListPresenter(INewsView view) {
@@ -25,6 +29,7 @@ public class NewsListPresenter extends BasePresenter<INewsView> {
     }
 
     public void getNewsList(String channelCode) {
+        Log.d(TAG,"获取新闻列表"+channelCode);
         lastTime = PreUtils.getLong(channelCode, 0);
         if (lastTime == 0) {
             lastTime = System.currentTimeMillis() / 1000;
@@ -34,6 +39,7 @@ public class NewsListPresenter extends BasePresenter<INewsView> {
         newsList.enqueue(new Callback<NewsResponse>() {
             @Override
             public void onResponse(Call<NewsResponse> call, Response<NewsResponse> response) {
+                Log.d(TAG,"response");
                 lastTime = System.currentTimeMillis() / 1000;
                 PreUtils.putLong(channelCode, lastTime);//保存刷新的时间戳
 
@@ -50,6 +56,7 @@ public class NewsListPresenter extends BasePresenter<INewsView> {
 
             @Override
             public void onFailure(Call<NewsResponse> call, Throwable t) {
+                Log.d(TAG,"error:"+t.getMessage());
                 mView.onError();
             }
         });

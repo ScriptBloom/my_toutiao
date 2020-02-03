@@ -21,6 +21,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
@@ -42,6 +45,7 @@ dependencies {
     implementation 'me.weyye.ColorTrackTabLayout:library:1.0.1'
 
     //retrofit
+    implementation "com.squareup.okhttp3:okhttp:3.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.retrofit2:adapter-rxjava:$retrofit_version"
@@ -63,4 +67,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
     //event bus
     implementation 'org.greenrobot:eventbus:3.0.0'
+    //state view
+    implementation 'com.github.nukc.stateview:library:1.2.1'
 }

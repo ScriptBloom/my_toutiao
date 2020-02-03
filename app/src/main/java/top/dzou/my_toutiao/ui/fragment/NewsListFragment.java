@@ -42,7 +42,10 @@ import top.dzou.my_toutiao.model.NewsRecord;
 import top.dzou.my_toutiao.model.VideoInfo;
 import top.dzou.my_toutiao.mvp.presenter.NewsListPresenter;
 import top.dzou.my_toutiao.mvp.view.INewsView;
+import top.dzou.my_toutiao.ui.activity.NewsDetailActivity;
 import top.dzou.my_toutiao.ui.activity.VideoDetailActivity;
+import top.dzou.my_toutiao.ui.activity.WebViewActivity;
+import top.dzou.my_toutiao.ui.activity.base.NewsDetailBaseActivity;
 import top.dzou.my_toutiao.ui.adapter.NewsListAdapter;
 import top.dzou.my_toutiao.ui.adapter.VideoRvAdapter;
 import top.dzou.my_toutiao.ui.widget.MyJzvdStd;
@@ -56,8 +59,10 @@ import top.dzou.ui_kit.tip_notice.TipView;
 public class NewsListFragment extends BaseFragment<NewsListPresenter> implements INewsView {
 
     private static final String TAG = "NewsListFragment";
-    @BindView(R.id.rv) SwipeFreshRecyclerView mRv;
-    @BindView(R.id.tip_view) TipView mTip;
+    @BindView(R.id.rv)
+    SwipeFreshRecyclerView mRv;
+    @BindView(R.id.tip_view)
+    TipView mTip;
 
     private OnRefresh mRefreshListener;
     private List<News> mNewsList = new ArrayList<>();
@@ -87,7 +92,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     @Override
     protected void initListener() {
         super.initListener();
-        mRefreshListener = () -> UIUtils.postTaskSafely(()->{
+        mRefreshListener = () -> UIUtils.postTaskSafely(() -> {
             mPresenter.getNewsList(mChannelCode);
         });
         mRv.setOnRefresh(mRefreshListener);
@@ -114,13 +119,20 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
                     intent.putExtra(VideoDetailActivity.VIDEO_URL, videoUrl);
                 }
             } else {
-                //todo
+                //如果是新闻消息
+                if (news.article_type == 1) {
+                    intent = new Intent(mActivity, WebViewActivity.class);
+                    intent.putExtra(WebViewActivity.URL, news.article_url);
+                    startActivity(intent);
+                    return;
+                }
+                intent = new Intent(mActivity, NewsDetailActivity.class);
             }
-            intent.putExtra(VideoDetailActivity.CHANNEL_CODE, mChannelCode);
-            intent.putExtra(VideoDetailActivity.POSITION, position);
-            intent.putExtra(VideoDetailActivity.DETAIL_URL, url);
-            intent.putExtra(VideoDetailActivity.GROUP_ID, news.group_id);
-            intent.putExtra(VideoDetailActivity.ITEM_ID, news.item_id);
+            intent.putExtra(NewsDetailBaseActivity.CHANNEL_CODE, mChannelCode);
+            intent.putExtra(NewsDetailBaseActivity.POSITION, position);
+            intent.putExtra(NewsDetailBaseActivity.DETAIL_URL, url);
+            intent.putExtra(NewsDetailBaseActivity.GROUP_ID, news.group_id);
+            intent.putExtra(NewsDetailBaseActivity.ITEM_ID, news.item_id);
             startActivity(intent);
         });
 //        mAdapter.setEnableLoadMore(true);
@@ -136,7 +148,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
                     MyJzvdStd jzvdStd = view.findViewById(R.id.video_player);
                     if (jzvdStd != null && jzvdStd.jzDataSource != null && jzvdStd.jzDataSource.containsTheUrl(JZMediaManager.getCurrentUrl())) {
                         Jzvd current = JzvdMgr.getCurrentJzvd();
-                        if(current!=null&&current.currentScreen!=Jzvd.SCREEN_WINDOW_FULLSCREEN){
+                        if (current != null && current.currentScreen != Jzvd.SCREEN_WINDOW_FULLSCREEN) {
                             Jzvd.releaseAllVideos();
                         }
                     }
@@ -151,11 +163,10 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 //        Log.d(TAG, String.valueOf(mRv==null)+String.valueOf(mActivity.getLocalClassName()));
         mRv.setLayoutManager(new GridLayoutManager(mActivity, 1));
         if (isVideoFg) {
-            mAdapter = new VideoRvAdapter(mNewsList,mActivity);
+            mAdapter = new VideoRvAdapter(mNewsList, mActivity);
         } else {
-            //todo
             //其他新闻列表
-            mAdapter = new NewsListAdapter(mNewsList,mChannelCode,mActivity);
+            mAdapter = new NewsListAdapter(mNewsList, mChannelCode, mActivity);
         }
         mRv.setAdapter(mAdapter);
     }
@@ -182,9 +193,10 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
     @Override
     protected void loadData() {
+        mStateView.showLoading();
         //查找该频道的最后一组记录
         mNewsRecord = NewsRecordHelper.getLastNewsRecord(mChannelCode);
-        Log.d(TAG,"loadData newslist");
+        Log.d(TAG, "loadData newslist");
         if (mNewsRecord == null) {
             //找不到记录，拉取网络数据
             mNewsRecord = new NewsRecord();//创建一个没有数据的对象
@@ -195,6 +207,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         List<News> newsList = NewsRecordHelper.convertToNewsList(mNewsRecord.getJson());
         mNewsList.addAll(newsList);//添加到集合中
         mAdapter.notifyDataSetChanged();//刷新adapter
+        mStateView.showContent();//显示内容
     }
 
     @Override
@@ -202,11 +215,16 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         if (isHomeTabRefresh) {
             postRefreshCompletedEvent();//发送加载完成的事件
         }
-        if(mNewsList==null||mNewsList.isEmpty()){
-            //todo
+        mRv.refreshComplete();
+        if (mNewsList == null || mNewsList.isEmpty()) {
+            if(newList==null || newList.isEmpty()) {
+                //获取不到数据,显示空布局
+                mStateView.showEmpty();
+            }
         }
-        if(newList==null||newList.isEmpty()){
+        if (newList == null || newList.isEmpty()) {
             UIUtils.showToast(UIUtils.getResource().getString(R.string.no_news_now));
+            return;
         }
 
         if (TextUtils.isEmpty(newList.get(0).title)) {
@@ -227,8 +245,8 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     @Override
     public void onError() {
         mTip.show();
-        if(mNewsList==null||mNewsList.isEmpty()){
-            //todo
+        if (mNewsList == null || mNewsList.isEmpty()) {
+            mStateView.showRetry();
         }
     }
 
@@ -236,7 +254,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
      * 处理置顶新闻和广告重复
      */
     private void dealRepeat(List<News> newList) {
-        if (isRecommendChannel && mNewsList!=null||!mNewsList.isEmpty()) {
+        if (isRecommendChannel && mNewsList != null && !mNewsList.isEmpty()) {
             //如果是推荐频道并且数据列表已经有数据,处理置顶新闻或广告重复的问题
             mNewsList.remove(0);//由于第一条新闻是重复的，移除原有的第一条
             //新闻列表通常第4个是广告,除了第一次有广告，再次获取的都移除广告
@@ -263,7 +281,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
                 return;
             }
             isClickTabRefreshing = true;
-            if (event.getPosition()==0) {
+            if (event.getPosition() == 0) {
                 //如果页签是首页，则换成就加载的图标并执行动画
 //                MenuItem menuItem = event.getMenuItem();
 //                menuItem.setIcon(R.mipmap.tab_loading);
@@ -277,7 +295,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
             mRv.scrollToPosition(0);//滚动到顶部
             mRefreshListener.onRefresh();
-            isHomeTabRefresh = event.getPosition()==0;
+            isHomeTabRefresh = event.getPosition() == 0;
         }
     }
 
@@ -297,10 +315,11 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         qrView.startAnimation(animation);
 
     }
+
     private void hideAnimate() {
-        if(mAnimMenuItem != null){
+        if (mAnimMenuItem != null) {
             View view = mAnimMenuItem.getActionView();
-            if(view != null){
+            if (view != null) {
                 view.clearAnimation();
                 mAnimMenuItem.setActionView(null);
             }
