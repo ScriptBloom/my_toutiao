@@ -2,7 +2,6 @@ package top.dzou.my_toutiao.ui.fragment;
 
 
 import android.content.Intent;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -10,7 +9,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -46,7 +44,7 @@ import top.dzou.my_toutiao.ui.activity.NewsDetailActivity;
 import top.dzou.my_toutiao.ui.activity.VideoDetailActivity;
 import top.dzou.my_toutiao.ui.activity.WebViewActivity;
 import top.dzou.my_toutiao.ui.activity.base.NewsDetailBaseActivity;
-import top.dzou.my_toutiao.ui.adapter.NewsListAdapter;
+import top.dzou.my_toutiao.ui.adapter.MultiNewsListAdapter;
 import top.dzou.my_toutiao.ui.adapter.VideoRvAdapter;
 import top.dzou.my_toutiao.ui.widget.MyJzvdStd;
 import top.dzou.my_toutiao.utils.NetUtils;
@@ -92,7 +90,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     @Override
     protected void initListener() {
         super.initListener();
-        mRefreshListener = () -> UIUtils.postTaskSafely(() -> {
+        mRefreshListener = () -> UIUtils.postTaskOtherThread(() -> {
             mPresenter.getNewsList(mChannelCode);
         });
         mRv.setOnRefresh(mRefreshListener);
@@ -166,7 +164,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
             mAdapter = new VideoRvAdapter(mNewsList, mActivity);
         } else {
             //其他新闻列表
-            mAdapter = new NewsListAdapter(mNewsList, mChannelCode, mActivity);
+            mAdapter = new MultiNewsListAdapter(mNewsList, mChannelCode, mActivity);
         }
         mRv.setAdapter(mAdapter);
     }
@@ -195,17 +193,20 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     protected void loadData() {
         mStateView.showLoading();
         //查找该频道的最后一组记录
-        mNewsRecord = NewsRecordHelper.getLastNewsRecord(mChannelCode);
-        Log.d(TAG, "loadData newslist");
-        if (mNewsRecord == null) {
-            //找不到记录，拉取网络数据
-            mNewsRecord = new NewsRecord();//创建一个没有数据的对象
-            mPresenter.getNewsList(mChannelCode);
-            return;
-        }
-        //找到最后一组记录，转换成新闻集合并展示
-        List<News> newsList = NewsRecordHelper.convertToNewsList(mNewsRecord.getJson());
-        mNewsList.addAll(newsList);//添加到集合中
+//        UIUtils.postTaskOtherThread(()->{
+            mNewsRecord = NewsRecordHelper.getLastNewsRecord(mChannelCode);
+            Log.d(TAG, "loadData newslist");
+            if (mNewsRecord == null) {
+                Log.d(TAG,"数据库为空");
+                //找不到记录，拉取网络数据
+                mNewsRecord = new NewsRecord();//创建一个没有数据的对象
+                mPresenter.getNewsList(mChannelCode);
+                return;
+            }
+            //找到最后一组记录，转换成新闻集合并展示
+            List<News> newsList = NewsRecordHelper.convertToNewsList(mNewsRecord.getJson());
+            mNewsList.addAll(newsList);//添加到集合中
+//        });
         mAdapter.notifyDataSetChanged();//刷新adapter
         mStateView.showContent();//显示内容
     }
@@ -239,7 +240,9 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
         mTip.show(tipInfo);
         //保存到数据库
-        NewsRecordHelper.save(mChannelCode, mGson.toJson(newList));
+        UIUtils.postTaskOtherThread(()->{
+            NewsRecordHelper.save(mChannelCode, mGson.toJson(newList));
+        });
     }
 
     @Override

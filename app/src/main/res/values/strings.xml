@@ -31,4 +31,10 @@
     <string name="video_watch_count">%s次播放</string>
     <string name="no_news_now">目前没有新闻了</string>
     <string name="set_to_top">置顶</string>
+    <string name="to_top">置顶</string>
+    <string name="hot">热</string>
+    <string name="ad">广告</string>
+    <string name="tag_movie">影视</string>
+    <string name="comment">评论</string>
+    <string name="img_unit">图</string>
 </resources>

@@ -106,7 +106,7 @@ public class ChannelDialogRvAdapter extends BaseMultiItemQuickAdapter<Channel, B
 
     private void processTypeOther(BaseViewHolder helper, Channel item) {
         //频道推荐
-        helper.setText(R.id.tvTitle, item.getChannelTitle()).setGone(R.id.tvEdit, false);
+        helper.setText(R.id.tvTitle, item.getChannelTitle()).setVisible(R.id.tvEdit, false);
     }
 
     private void processTypeMyChannel(BaseViewHolder helper, Channel channel) {

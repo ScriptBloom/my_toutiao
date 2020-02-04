@@ -1,8 +1,11 @@
 package top.dzou.my_toutiao.base;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -43,17 +46,22 @@ public abstract class LazyLoadFragment extends Fragment {
         if (isVisibleToUser) {
             //如果不是第一次进入，可见的时候
             isFragmentVisible = true;
-            onFragmentVisibleChange(true);//回调当前fragment可见
+            onFragmentVisibleChange(isFragmentVisible);//回调当前fragment可见
             return;
         }
 
         if (isFragmentVisible) {
             //如果当前fragment不可见且标识为true
             isFragmentVisible = false;//更改标识
-            onFragmentVisibleChange(false);//回调当前fragment不可见
+            onFragmentVisibleChange(isFragmentVisible);//回调当前fragment不可见
         }
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -98,9 +106,9 @@ public abstract class LazyLoadFragment extends Fragment {
      *                  false 可见  -> 不可见
      */
     protected void onFragmentVisibleChange(boolean isVisible) {
-        if(isParentVisible()) {
-            loadData();
-        }
+//        if(isParentVisible()) {
+//            loadData();
+//        }
     }
 
     /**
@@ -122,7 +130,7 @@ public abstract class LazyLoadFragment extends Fragment {
 
     /**重置变量*/
     private void resetVariavle(){
-        isFirstEnter = true;
+//        isFirstEnter = true;
         isReuseView = true;
         isFragmentVisible = false;
     }

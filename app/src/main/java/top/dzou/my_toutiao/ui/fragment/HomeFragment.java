@@ -112,7 +112,7 @@ public class HomeFragment extends BaseFragment implements OnChannelListener {
     protected void initView(View rootView) {
         super.initView(rootView);
         mPagerAdapter = new ChannelPageAdapter(getChildFragmentManager(),
-                FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, mFragments, mSelectedChannels);
+                FragmentPagerAdapter.BEHAVIOR_SET_USER_VISIBLE_HINT, mFragments, mSelectedChannels);
         mViewPager.setAdapter(mPagerAdapter);
         mViewPager.setOffscreenPageLimit(mSelectedChannels.size());
         //设置每个Tab的内边距

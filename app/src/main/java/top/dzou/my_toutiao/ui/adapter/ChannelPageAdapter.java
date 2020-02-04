@@ -39,4 +39,13 @@ public class ChannelPageAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         return mChannels.get(position).getChannelTitle();
     }
+
+    @Override
+    public int getItemPosition(Object object) {
+        //        if (mChildCount > 0) {
+        //            mChildCount--;
+        return POSITION_NONE;
+        //        }
+        //        return super.getItemPosition(object);
+    }
 }

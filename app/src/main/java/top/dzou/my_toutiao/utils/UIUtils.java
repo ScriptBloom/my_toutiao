@@ -69,6 +69,20 @@ public class UIUtils {
     }
 
     /**
+     * 在其他线程执行任务
+     * @param task
+     */
+    public static void postTaskOtherThread(Runnable task) {
+        int curThreadId = android.os.Process.myTid();
+        // 如果当前线程不是主线程
+        if (curThreadId == getMainThreadId()) {
+            new Thread(task).start();
+        }else {
+            task.run();
+        }
+    }
+
+    /**
      * 得到主线程Handler
      *
      * @return
@@ -296,4 +310,6 @@ public class UIUtils {
         ViewGroup mContentView = (ViewGroup) activity.getWindow().findViewById(Window.ID_ANDROID_CONTENT);
         mContentView.setPadding(0, padding, 0, 0);
     }
+
+
 }

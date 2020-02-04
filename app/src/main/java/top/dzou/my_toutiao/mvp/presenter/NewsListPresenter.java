@@ -17,6 +17,7 @@ import top.dzou.my_toutiao.model.NewsData;
 import top.dzou.my_toutiao.model.NewsResponse;
 import top.dzou.my_toutiao.mvp.view.INewsView;
 import top.dzou.my_toutiao.utils.PreUtils;
+import top.dzou.my_toutiao.utils.UIUtils;
 
 public class NewsListPresenter extends BasePresenter<INewsView> {
 
@@ -51,7 +52,10 @@ public class NewsListPresenter extends BasePresenter<INewsView> {
                         newsList.add(news);
                     }
                 }
-                mView.onSuccess(newsList,response.body().tips.display_info);
+                //在主线程更新UI
+                UIUtils.postTaskSafely(()->{
+                    mView.onSuccess(newsList,response.body().tips.display_info);
+                });
             }
 
             @Override

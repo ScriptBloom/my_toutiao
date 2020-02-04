@@ -30,6 +30,7 @@ public abstract class BaseFragment<T extends BasePresenter> extends LazyLoadFrag
         mPresenter = createPresenter();
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (rootView == null) {

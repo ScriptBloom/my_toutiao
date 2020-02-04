@@ -6,14 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.MainActivity">
 
-    <androidx.viewpager.widget.ViewPager
+    <!--<androidx.viewpager.widget.ViewPager
         android:layout_weight="1"
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top"
         android:layout_marginBottom="50dp"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints" />-->
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bnv"
@@ -27,6 +27,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <FrameLayout
+        android:id="@+id/fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
     <!--<fragment
         android:id="@+id/fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"

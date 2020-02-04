@@ -82,7 +82,7 @@ public class VideoFragment extends BaseFragment {
     protected void initView(View rootView) {
         super.initView(rootView);
         mAdapter = new ChannelPageAdapter(getChildFragmentManager(),
-                FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, mFragments, mChannels);
+                FragmentStatePagerAdapter.BEHAVIOR_SET_USER_VISIBLE_HINT, mFragments, mChannels);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(mFragments.size());
         //设置每个Tab的内边距
