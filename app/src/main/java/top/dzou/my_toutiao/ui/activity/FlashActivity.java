@@ -6,6 +6,7 @@ import android.view.WindowManager;
 
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.base.BaseActivity;
+import top.dzou.my_toutiao.base.BasePresenter;
 import top.dzou.my_toutiao.utils.UIUtils;
 
 public class FlashActivity extends BaseActivity {
@@ -19,6 +20,11 @@ public class FlashActivity extends BaseActivity {
             startActivity(new Intent(FlashActivity.this, MainActivity.class));
             finish();
         },2000);
+    }
+
+    @Override
+    protected BasePresenter createPresenter() {
+        return null;
     }
 
     @Override

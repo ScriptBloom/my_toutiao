@@ -61,7 +61,9 @@ public class MyJzvdStd extends JzvdStd {
             Log.i(TAG, "onClick: fullscreen button");
         } else if (i == R.id.start) {
             if (currentState == CURRENT_STATE_IDLE || currentState == CURRENT_STATE_NORMAL) {
-                mVideoStateListener.onStart();
+                if (mVideoStateListener!=null) {
+                    mVideoStateListener.onStart();
+                }
                 Log.i(TAG, "onClick: start button");
             }
         }

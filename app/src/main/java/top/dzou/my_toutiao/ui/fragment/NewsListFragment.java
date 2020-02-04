@@ -35,6 +35,7 @@ import top.dzou.my_toutiao.api.Constant;
 import top.dzou.my_toutiao.base.BaseFragment;
 import top.dzou.my_toutiao.event.TabRefreshCompletedEvent;
 import top.dzou.my_toutiao.event.TabRefreshEvent;
+import top.dzou.my_toutiao.event.VideoProgressAndCommentEvent;
 import top.dzou.my_toutiao.model.News;
 import top.dzou.my_toutiao.model.NewsRecord;
 import top.dzou.my_toutiao.model.VideoInfo;
@@ -194,18 +195,18 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         mStateView.showLoading();
         //查找该频道的最后一组记录
 //        UIUtils.postTaskOtherThread(()->{
-            mNewsRecord = NewsRecordHelper.getLastNewsRecord(mChannelCode);
-            Log.d(TAG, "loadData newslist");
-            if (mNewsRecord == null) {
-                Log.d(TAG,"数据库为空");
-                //找不到记录，拉取网络数据
-                mNewsRecord = new NewsRecord();//创建一个没有数据的对象
-                mPresenter.getNewsList(mChannelCode);
-                return;
-            }
-            //找到最后一组记录，转换成新闻集合并展示
-            List<News> newsList = NewsRecordHelper.convertToNewsList(mNewsRecord.getJson());
-            mNewsList.addAll(newsList);//添加到集合中
+        mNewsRecord = NewsRecordHelper.getLastNewsRecord(mChannelCode);
+        Log.d(TAG, "loadData newslist");
+        if (mNewsRecord == null) {
+            Log.d(TAG, "数据库为空");
+            //找不到记录，拉取网络数据
+            mNewsRecord = new NewsRecord();//创建一个没有数据的对象
+            mPresenter.getNewsList(mChannelCode);
+            return;
+        }
+        //找到最后一组记录，转换成新闻集合并展示
+        List<News> newsList = NewsRecordHelper.convertToNewsList(mNewsRecord.getJson());
+        mNewsList.addAll(newsList);//添加到集合中
 //        });
         mAdapter.notifyDataSetChanged();//刷新adapter
         mStateView.showContent();//显示内容
@@ -218,7 +219,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         }
         mRv.refreshComplete();
         if (mNewsList == null || mNewsList.isEmpty()) {
-            if(newList==null || newList.isEmpty()) {
+            if (newList == null || newList.isEmpty()) {
                 //获取不到数据,显示空布局
                 mStateView.showEmpty();
             }
@@ -240,7 +241,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
         mTip.show(tipInfo);
         //保存到数据库
-        UIUtils.postTaskOtherThread(()->{
+        UIUtils.postTaskOtherThread(() -> {
             NewsRecordHelper.save(mChannelCode, mGson.toJson(newList));
         });
     }
@@ -335,6 +336,26 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
             EventBus.getDefault().post(new TabRefreshCompletedEvent());
             isClickTabRefreshing = false;
         }
+    }
+
+    /**
+     * 接收到刷新进度和评论数的事件
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    private void onVideoProgressAndCommentCountEvent(VideoProgressAndCommentEvent event) {
+        if (!event.getChannelCode().equals(mChannelCode)) {
+            //如果频道不一致，不用处理
+            return;
+        }
+        News news = mNewsList.get(event.getPosition());
+        news.comment_count = (int) event.getCommmentCount();
+        if (news.video_detail_info != null) {
+            //如果有视频
+            long progress = event.getProgress();
+            news.video_detail_info.progress = progress;
+        }
+        //刷新adapter
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

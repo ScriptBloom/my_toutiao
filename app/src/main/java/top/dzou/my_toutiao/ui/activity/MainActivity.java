@@ -35,6 +35,7 @@ import cn.jzvd.Jzvd;
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.base.BaseActivity;
 import top.dzou.my_toutiao.base.BaseFragment;
+import top.dzou.my_toutiao.base.BasePresenter;
 import top.dzou.my_toutiao.event.TabRefreshCompletedEvent;
 import top.dzou.my_toutiao.event.TabRefreshEvent;
 import top.dzou.my_toutiao.ui.adapter.MainTabAdapter;
@@ -66,14 +67,14 @@ public class MainActivity extends BaseActivity {
             put(R.id.microToutiaoFragment, R.color.color_BDBDBD);
         }
     };
-    private Map<Integer, Integer> mPos = new HashMap<Integer, Integer>() {
+    /*private Map<Integer, Integer> mPos = new HashMap<Integer, Integer>() {
         {
             put(0, R.id.homeFragment);
             put(1, R.id.videoFragment);
             put(2, R.id.microToutiaoFragment);
             put(3, R.id.mineFragment);
         }
-    };
+    };*/
 
 
     @Override
@@ -81,26 +82,26 @@ public class MainActivity extends BaseActivity {
         return R.layout.activity_main;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        FragmentManager fManager = getSupportFragmentManager();
-        if (savedInstanceState != null) {
-            mHomeFrg = (BaseFragment) fManager.findFragmentByTag(HOME_FRAGMENT_TAG);
-            mVideoFrg = (BaseFragment) fManager.findFragmentByTag(VIDEO_FRAGMENT_TAG);
-            mMicroFrg = (BaseFragment) fManager.findFragmentByTag(MICRO_FRAGMENT_TAG);
-            mMineFrg = (BaseFragment) fManager.findFragmentByTag(MINE_FRAGMENT_TAG);
-        }
-        super.onCreate(savedInstanceState);
-    }
+//    @Override
+//    public void onCreate(@Nullable Bundle savedInstanceState) {
+//        FragmentManager fManager = getSupportFragmentManager();
+//        if (savedInstanceState != null) {
+//            mHomeFrg = (BaseFragment) fManager.findFragmentByTag(HOME_FRAGMENT_TAG);
+//            mVideoFrg = (BaseFragment) fManager.findFragmentByTag(VIDEO_FRAGMENT_TAG);
+//            mMicroFrg = (BaseFragment) fManager.findFragmentByTag(MICRO_FRAGMENT_TAG);
+//            mMineFrg = (BaseFragment) fManager.findFragmentByTag(MINE_FRAGMENT_TAG);
+//        }
+//        super.onCreate(savedInstanceState);
+//    }
 
 
     @Override
     protected void initData() {
         super.initData();
-        mFragments.add(new HomeFragment());
-        mFragments.add(new VideoFragment());
-        mFragments.add(new MicroToutiaoFragment());
-        mFragments.add(new MineFragment());
+//        mFragments.add(new HomeFragment());
+//        mFragments.add(new VideoFragment());
+//        mFragments.add(new MicroToutiaoFragment());
+//        mFragments.add(new MineFragment());
 
         mMineFrg = new MineFragment();
         mHomeFrg = new HomeFragment();
@@ -146,6 +147,11 @@ public class MainActivity extends BaseActivity {
         } else {
             UIUtils.setStatusBarColor(MainActivity.this, UIUtils.getColor(mStatusColors.get(menuItemId)));
         }
+    }
+
+    @Override
+    protected BasePresenter createPresenter() {
+        return null;
     }
 
     @Override

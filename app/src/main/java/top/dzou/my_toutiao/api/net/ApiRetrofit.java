@@ -106,7 +106,7 @@ public class ApiRetrofit {
                             .client(new OkHttpClient.Builder()
                                     .addInterceptor(mCacheInterceptor)
                                     .addInterceptor(mHeaderIntercepter)
-                                    .addInterceptor(mLogIntercepter)
+//                                    .addInterceptor(mLogIntercepter)
                                     .cache(cache)
                                     .connectTimeout(20, TimeUnit.SECONDS)
                                     .readTimeout(20, TimeUnit.SECONDS)
