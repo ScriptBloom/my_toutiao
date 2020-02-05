@@ -3,6 +3,7 @@ package top.dzou.my_toutiao.ui.widget;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -20,6 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.model.NewsDetail;
+import top.dzou.my_toutiao.model.js.ImgOpJs;
 import top.dzou.my_toutiao.utils.TimeUtils;
 
 public class NewsDetailHeaderView extends FrameLayout {
@@ -83,6 +85,7 @@ public class NewsDetailHeaderView extends FrameLayout {
             return;
         }
         mWvContent.getSettings().setJavaScriptEnabled(true);
+        mWvContent.addJavascriptInterface(new ImgOpJs(mContext),ImgOpJs.BYTEDANCE);
         String htmlPart1 = "<!DOCTYPE HTML html>\n" +
                 "<head><meta charset=\"utf-8\"/>\n" +
                 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no\"/>\n" +
@@ -97,11 +100,32 @@ public class NewsDetailHeaderView extends FrameLayout {
         mWvContent.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                executeJs(view);
                 if (mListener != null) {
                     mListener.onLoadFinish();
                 }
             }
         });
+    }
+
+    private void executeJs(WebView view){
+        //两种方式执行js
+        view.loadUrl("javascript:(function  pic(){var imgList = \"\";\n" +
+                "    var imgs = document.getElementsByTagName(\"img\");\n" +
+                "    for(var i=0;i<imgs.length;i++){\n" +
+                "        var img = imgs[i];\n" +
+                "        imgList = imgList + img.src + \";\";\n" +
+                "        img.onclick = function(){\n" +
+                "            window.bytedance.openImg(this.src);\n" +
+                "        }\n" +
+                "    }\n" +
+                "    window.bytedance.getImgArray(imgList);})()");
+//        view.evaluateJavascript("file:///android_asset/getImg.js", new ValueCallback<String>() {
+//            @Override
+//            public void onReceiveValue(String value) {
+//
+//            }
+//        });
     }
 
 

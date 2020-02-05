@@ -55,7 +55,7 @@ import top.dzou.ui_kit.swipe_rv.OnRefresh;
 import top.dzou.ui_kit.swipe_rv.SwipeFreshRecyclerView;
 import top.dzou.ui_kit.tip_notice.TipView;
 
-public class NewsListFragment extends BaseFragment<NewsListPresenter> implements INewsView {
+public class NewsListFragment extends BaseFragment<NewsListPresenter> implements INewsView, BaseQuickAdapter.RequestLoadMoreListener {
 
     private static final String TAG = "NewsListFragment";
     @BindView(R.id.rv)
@@ -134,7 +134,6 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
             intent.putExtra(NewsDetailBaseActivity.ITEM_ID, news.item_id);
             startActivity(intent);
         });
-//        mAdapter.setEnableLoadMore(true);
         if (isVideoFg) {
             mRv.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
                 @Override
@@ -154,6 +153,9 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
                 }
             });
         }
+        //加载更多
+        mAdapter.setEnableLoadMore(true);
+        mAdapter.setOnLoadMoreListener(this, mRv);
     }
 
     @Override
@@ -241,9 +243,9 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
         mTip.show(tipInfo);
         //保存到数据库
-        UIUtils.postTaskOtherThread(() -> {
+//        UIUtils.postTaskOtherThread(() -> {
             NewsRecordHelper.save(mChannelCode, mGson.toJson(newList));
-        });
+//        });
     }
 
     @Override
@@ -370,4 +372,42 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         unregisterEventBus(NewsListFragment.this);
     }
 
+    @Override
+    public void onLoadMoreRequested() {
+        if (mNewsRecord.getPage() == 0 || mNewsRecord.getPage() == 1) {
+            //如果记录的页数为0(即是创建的空记录)，或者页数为1(即已经是第一条记录了)
+            mAdapter.loadMoreEnd();
+            return;
+        }
+        NewsRecord preNewsRecord = NewsRecordHelper.getPreNewsRecord(mChannelCode, mNewsRecord.getPage());
+        if (preNewsRecord == null) {
+            mAdapter.loadMoreEnd();
+//            mAdapter.notifyDataSetChanged();
+            return;
+        }
+        mNewsRecord = preNewsRecord;
+
+        long startTime = System.currentTimeMillis();
+
+        List<News> newsList = NewsRecordHelper.convertToNewsList(mNewsRecord.getJson());
+
+        if (isRecommendChannel) {
+            //如果是推荐频道
+            newsList.remove(0);//移除第一个，因为第一个是置顶新闻，重复
+        }
+
+        long endTime = System.currentTimeMillis();
+
+        //由于是读取数据库，如果耗时不足1秒，则1秒后才收起加载更多
+        if (endTime - startTime <= 1000) {
+            UIUtils.postTaskDelay(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.loadMoreComplete();
+                    mNewsList.addAll(newsList);//添加到集合下面
+                    mAdapter.notifyDataSetChanged();//刷新adapter
+                }
+            }, (int) (1000 - (endTime - startTime)));
+        }
+    }
 }

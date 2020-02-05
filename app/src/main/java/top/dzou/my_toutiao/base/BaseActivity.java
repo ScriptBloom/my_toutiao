@@ -1,17 +1,26 @@
 package top.dzou.my_toutiao.base;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.github.nukc.stateview.StateView;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import butterknife.ButterKnife;
 import top.dzou.my_toutiao.R;
+import top.dzou.my_toutiao.listener.PermissionListener;
 import top.dzou.my_toutiao.ui.activity.FlashActivity;
 import top.dzou.my_toutiao.utils.UIUtils;
 
@@ -21,6 +30,8 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     protected StateView mStateView;
     protected T mPresenter;
     protected View rootView;
+
+    protected PermissionListener mPermissionListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,4 +135,42 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
         }
     }
 
+
+    protected void requestPermissionsRuntime(String[] permissions, PermissionListener permissionListener) {
+        mPermissionListener = permissionListener;
+        List<String> permissionList = new ArrayList<>();
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(permission);
+            }
+        }
+        if (permissionList.isEmpty()) {
+            mPermissionListener.onGranted();
+        } else {
+            ActivityCompat.requestPermissions(this, permissionList.toArray(new String[permissionList.size()]), 1);
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0) {
+                    List<String> deniedPermissions = new ArrayList<>();
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            deniedPermissions.add(permissions[i]);
+                        }
+                    }
+                    if (deniedPermissions.isEmpty()) {
+                        mPermissionListener.onGranted();
+                    } else {
+                        mPermissionListener.onDenied(deniedPermissions);
+                    }
+                }
+                break;
+        }
+    }
 }

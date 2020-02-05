@@ -53,6 +53,16 @@ public class UIUtils {
     }
 
     /**
+     * 延迟执行任务
+     *
+     * @param task
+     * @param delayMillis
+     */
+    public static void postTaskDelay(Runnable task, int delayMillis) {
+        getMainThreadHandler().postDelayed(task, delayMillis);
+    }
+
+    /**
      * 安全的执行一个任务
      *
      * @param task

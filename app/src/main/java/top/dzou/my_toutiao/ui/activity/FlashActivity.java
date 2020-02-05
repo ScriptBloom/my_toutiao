@@ -1,12 +1,16 @@
 package top.dzou.my_toutiao.ui.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Handler;
 import android.view.WindowManager;
 
+import java.util.List;
+
 import top.dzou.my_toutiao.R;
 import top.dzou.my_toutiao.base.BaseActivity;
 import top.dzou.my_toutiao.base.BasePresenter;
+import top.dzou.my_toutiao.listener.PermissionListener;
 import top.dzou.my_toutiao.utils.UIUtils;
 
 public class FlashActivity extends BaseActivity {

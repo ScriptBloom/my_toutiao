@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
+
 import org.litepal.crud.DataSupport;
 
 import top.dzou.my_toutiao.model.News;
@@ -33,7 +34,7 @@ public class NewsRecordHelper {
     public static NewsRecord getPreNewsRecord(String channelCode, int page) {
         List<NewsRecord> newsRecords = selectNewsRecords(channelCode, page - 1);
 
-        if (newsRecords!=null&&!newsRecords.isEmpty()) {
+        if (newsRecords == null || newsRecords.isEmpty()) {
             return null;
         }
 
@@ -62,6 +63,7 @@ public class NewsRecordHelper {
 
     /**
      * 根据频道码和页码查询新闻记录
+     *
      * @param channelCode
      * @param page
      * @return

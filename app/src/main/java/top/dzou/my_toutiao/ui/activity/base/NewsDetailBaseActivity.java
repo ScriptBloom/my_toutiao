@@ -127,7 +127,7 @@ public abstract class NewsDetailBaseActivity extends BaseActivity<NewsDetailPres
 
     @Override
     public void onGetCommentSuccess(CommentResponse body) {
-        mStateView.showContent();
+//        mStateView.showContent();
         if (body.data == null || body.data.isEmpty()) {
             mCommentAdapter.loadMoreEnd();
         }
